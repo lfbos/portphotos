@@ -29,7 +29,7 @@
 
 * Create postgres database
 
-* Create `.env` file and add the corresponding information (see .env.example)
+* Create `.env` file and add the corresponding information (see `.env.example`)
 
 * Migrate the database `python manage.py migrate`
 
@@ -52,3 +52,10 @@ If you want to use your own dropbox app keys you can add in the `.env` file the 
 By default, I let the variables from an app that I created and the permission type for the app is **App folder**.
 
 For more information go to [Dropbox App Console](https://www.dropbox.com/developers/apps).
+
+## Production setup
+
+* In the environment file the DEBUG variable must be set to False
+* Allowed host variable must be changed in portphotos/settings.py p.e. ALLOWED_HOST=['yourhost.com']
+* The Dropbox application must be changed to production mode and add a new callback with the new production host 
+for oauth2 p.e. https://yourhost.com/oauth2/
