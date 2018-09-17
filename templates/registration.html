@@ -1,0 +1,177 @@
+{% load staticfiles widget_tweaks %}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <title>Login | PortPhotos</title>
+
+    <link rel="stylesheet" href="{% static 'semantic-ui/semantic.min.css' %}">
+
+    <style type="text/css">
+        body {
+            background-color: #DADADA;
+        }
+
+        body > .grid {
+            height: 100%;
+        }
+
+        .image {
+            margin-top: -100px;
+        }
+
+        .column {
+            max-width: 450px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ui middle aligned center aligned grid">
+    <div class="column">
+        <h2 class="ui teal image header">
+            <div class="content">
+                Registration
+            </div>
+        </h2>
+        <form class="ui large form" method="post">
+            {% csrf_token %}
+            <div class="ui stacked segment">
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="user icon"></i>
+                        {% render_field form.username type="text" placeholder="Username" %}
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="user icon"></i>
+                        {% render_field form.first_name type="text" placeholder="First Name" %}
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="user icon"></i>
+                        {% render_field form.last_name type="text" placeholder="Last Name" %}
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="user icon"></i>
+                        {% render_field form.email type="email" placeholder="Email" %}
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="lock icon"></i>
+                        {% render_field form.password1 type="password" placeholder="Password" %}
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="lock icon"></i>
+                        {% render_field form.password2 type="password" placeholder="Password Confirmation" %}
+                    </div>
+                </div>
+            
+                {% if error_messages %}
+                    {% for message in error_messages %}
+                        <div class="ui error message" style="display: inherit;">
+                        {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <button class="ui fluid large teal submit button">Sign up</button>
+            </div>
+        </form>
+
+        <div class="ui message">
+            New to us? <a href="#">Sign Up</a>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'semantic-ui/semantic.min.js' %}"></script>
+
+<script>
+    $(document)
+        .ready(function () {
+            $('.ui.form')
+                .form({
+                    fields: {
+                        first_name: {
+                            identifier: 'first_name',
+                            rules: [
+                                {
+                                    type: 'empty',
+                                    prompt: 'Please enter your first name'
+                                }
+                            ]
+                        },
+                        last_name: {
+                            identifier: 'last_name',
+                            rules: [
+                                {
+                                    type: 'empty',
+                                    prompt: 'Please enter your last name'
+                                }
+                            ]
+                        },
+                        email: {
+                            identifier: 'email',
+                            rules: [
+                                {
+                                    type: 'empty',
+                                    prompt: 'Please enter your email'
+                                },
+                                {
+                                    type: 'email',
+                                    prompt: 'Please enter a valid email'
+                                }
+                            ]
+                        },
+                        username: {
+                            identifier: 'username',
+                            rules: [
+                                {
+                                    type: 'empty',
+                                    prompt: 'Please enter your username'
+                                }
+                            ]
+                        },
+                        password1: {
+                            identifier: 'password1',
+                            rules: [
+                                {
+                                    type: 'empty',
+                                    prompt: 'Please enter your password'
+                                }
+                            ]
+                        },
+                        password2: {
+                            identifier: 'password2',
+                            rules: [
+                                {
+                                    type: 'empty',
+                                    prompt: 'Please enter confirm your password'
+                                },
+                                {
+                                    type: 'match[password1]',
+                                    prompt: 'Your password do not match'
+                                }
+                            ]
+                        }
+                    }
+                })
+            ;
+        })
+    ;
+</script>
+</body>
+
+</html>

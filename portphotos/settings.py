@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
     'photos'
 ]
 
@@ -127,3 +128,7 @@ USE_TZ = True
 STATIC_ROOT = os.getenv('STATIC_ROOT', os.path.join(PROJECT_DIR, 'static_root'))
 STATIC_URL = os.getenv('STATIC_URL', '/static/')
 STATICFILES_DIRS = (os.path.join(PROJECT_DIR, 'static/'),)
+
+AUTH_USER_MODEL = 'photos.CustomUser'
+
+LOGIN_REDIRECT_URL = '/'
