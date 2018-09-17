@@ -21,7 +21,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
     login_url = '/login/'
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_dropbox_account_linked:
+        if request.user.is_authenticated and not request.user.is_dropbox_account_linked:
             return redirect('welcome')
 
         return super(HomeView, self).dispatch(request, *args, **kwargs)
@@ -32,7 +32,7 @@ class WelcomeView(LoginRequiredMixin, TemplateView):
     login_url = '/login/'
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_dropbox_account_linked:
+        if request.user.is_authenticated and request.user.is_dropbox_account_linked:
             return redirect('home')
 
         return super(WelcomeView, self).dispatch(request, *args, **kwargs)
@@ -46,6 +46,9 @@ class WelcomeView(LoginRequiredMixin, TemplateView):
 
 
 def registration_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
 
@@ -87,7 +90,7 @@ def registration_view(request):
 
 
 def get_dropbox_auth_flow(web_app_session):
-    redirect_uri = "http://localhost:8000/oauth2/"
+    redirect_uri = "{}/oauth2/".format(settings.DROPBOX_REDIRECT_API)
     return dropbox.DropboxOAuth2Flow(
         settings.DROPBOX_APP_KEY, settings.DROPBOX_APP_SECRET,
         redirect_uri, web_app_session,

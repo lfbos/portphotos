@@ -33,7 +33,7 @@
 
 * Migrate the database `python manage.py migrate`
 
-* Execute and go to [http://localhost:8000/admin](http://localhost:8000/admin)
+* Execute and go to [http://localhost:8000/](http://localhost:8000/)
 
 ## Use
 
@@ -48,6 +48,7 @@ If you want to use your own dropbox app keys you can add in the `.env` file the 
 
 * DROPBOX_APP_KEY
 * DROPBOX_APP_SECRET
+* DROPBOX_REDIRECT_API
 
 By default, I let the variables from an app that I created and the permission type for the app is **App folder**.
 
@@ -59,3 +60,5 @@ For more information go to [Dropbox App Console](https://www.dropbox.com/develop
 * Allowed host variable must be changed in portphotos/settings.py p.e. ALLOWED_HOST=['yourhost.com']
 * The Dropbox application must be changed to production mode and add a new callback with the new production host 
 for oauth2 p.e. https://yourhost.com/oauth2/
+* The redirect uri variable in the environment file must be changed DROPBOX_REDIRECT_API
+

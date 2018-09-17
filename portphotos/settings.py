@@ -136,3 +136,4 @@ LOGIN_REDIRECT_URL = '/'
 
 DROPBOX_APP_KEY = os.getenv('DROPBOX_APP_KEY', '35fd4h0cj1zqw1m')
 DROPBOX_APP_SECRET = os.getenv('DROPBOX_APP_SECRET', 'ow7ltrsuc32ze4i')
+DROPBOX_REDIRECT_API = os.getenv('DROPBOX_REDIRECT_API', 'http://localhost:8000')
