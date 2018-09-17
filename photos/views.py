@@ -1,3 +1,6 @@
+import os
+
+import dropbox
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -6,9 +9,12 @@ from django.forms.utils import ErrorList
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
-from dropbox import DropboxOAuth2Flow
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from photos.forms import RegistrationForm
+from photos.serializers import PhotoSerializer
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -83,7 +89,7 @@ def registration_view(request):
 
 def get_dropbox_auth_flow(web_app_session):
     redirect_uri = "http://localhost:8000/oauth2/"
-    return DropboxOAuth2Flow(
+    return dropbox.DropboxOAuth2Flow(
         settings.DROPBOX_APP_KEY, settings.DROPBOX_APP_SECRET,
         redirect_uri, web_app_session,
         "dropbox-auth-csrf-token"
@@ -105,13 +111,85 @@ def dropbox_auth_finish(request):
         return redirect('home')
 
     try:
-        access_token, account_id, user_id = get_dropbox_auth_flow(request.session).finish(request.GET)
+        result = get_dropbox_auth_flow(request.session).finish(request.GET)
+        user.access_token = result.access_token
+        user.account_id = result.account_id
+        user.user_id = result.user_id
+        user.save()
     except Exception as e:
         print(str(e))
     else:
-        user.access_token = access_token
-        user.account_id = account_id
-        user.user_id = user_id
-        user.save()
-
         return redirect('home')
+
+
+@api_view(['GET'])
+@login_required
+def get_folder_list(request):
+    dbx = dropbox.Dropbox(request.user.access_token)
+    entries = dbx.files_list_folder('', recursive=True).entries
+
+    file_names = map(lambda e: e.path_display, entries)
+
+    thumbnails_data = list(map(
+        lambda fn: dropbox.dropbox.files.ThumbnailArg(fn, size=dropbox.dropbox.files.ThumbnailSize.w256h256),
+        file_names
+    ))
+
+    thumbnails = dbx.files_get_thumbnail_batch(thumbnails_data)
+
+    data = []
+
+    for entry_file in thumbnails.entries:
+        entry_file = entry_file.get_success()
+        thumbnail_data = PhotoSerializer(instance=entry_file.metadata).data
+        extension = os.path.splitext(thumbnail_data.get('name'))[-1][1:]
+        thumbnail = entry_file.thumbnail
+        base64 = 'data:image/{extension};base64,{thumbnail}'.format(
+            extension=extension,
+            thumbnail=thumbnail
+        )
+        thumbnail_data.update({'thumbnail': base64})
+        data.append(thumbnail_data)
+
+    return Response({
+        'data': data
+    })
+
+
+@api_view(['GET'])
+@login_required
+def get_thumbnail(request):
+    dbx = dropbox.Dropbox(request.user.access_token)
+
+    path = request.query_params.get('path')
+
+    thumb_arg = dropbox.dropbox.files.ThumbnailArg(path, size=dropbox.dropbox.files.ThumbnailSize.w960h640)
+
+    response = dbx.files_get_thumbnail_batch([thumb_arg])
+
+    entry = response.entries[0].get_success()
+    extension = os.path.splitext(entry.metadata.name)[-1][1:]
+    thumbnail = entry.thumbnail
+
+    base64 = 'data:image/{extension};base64,{thumbnail}'.format(
+        extension=extension,
+        thumbnail=thumbnail
+    )
+
+    return Response({
+        'thumbnail': base64
+    })
+
+
+@api_view(['POST'])
+@login_required
+def remove_file(request):
+    dbx = dropbox.Dropbox(request.user.access_token)
+
+    path = request.POST.get('path')
+
+    dbx.files_delete_v2(path)
+
+    return Response({
+        'message': 'File deleted successfully'
+    })
