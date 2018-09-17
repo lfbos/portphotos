@@ -1,7 +1,8 @@
-$(document).ready(function () {
+(function ($) {
     const $loadingElement = $('.loading');
     const $emptyFiles = $('.empty-files');
     const $cards = $('.content-cards');
+    const $uploadPhotos = $('.upload-photos');
 
     // fix menu when passed
     $('.masthead')
@@ -41,7 +42,7 @@ $(document).ready(function () {
                                 href="javascript:void(0);">
                                 <i data-path="${item.path_display}" class="right floated remove icon red"></i>
                             </a>
-                            <div class="header">${item.name}</div>
+                            <div class="header" style="word-wrap: break-word;">${item.name}</div>
                             <div class="meta">
                                 <span class="date">Created at ${moment(item.client_modified).format('LL')}</span>
                             </div>
@@ -128,5 +129,68 @@ $(document).ready(function () {
         });
     }
 
+    $('.upload-photos-btn').on('click', function (e) {
+        e.preventDefault();
+
+        $('.ui.modal.upload-modal')
+            .modal({
+                keyboardShortcuts: false,
+                onApprove: function () {
+                    return false;
+                }
+            }).modal('show')
+        ;
+    });
+
+    Dropzone.options.myDropzone = {
+        addRemoveLinks: true,
+        acceptedFiles: ".png,.jpg,.jpeg",
+        autoProcessQueue: false,
+        maxFiles: 5,
+        uploadMultiple: true,
+        init: function () {
+            let myDropzone = this;
+
+            this.on("maxfilesexceeded", function (file) {
+                swal("Max files exceeded", "You only can upload 5 files at the time", "error");
+                this.removeFile(file);
+            });
+
+            this.on("addedfile", function () {
+                if (this.files.length > 0) {
+                    $uploadPhotos.removeClass('disabled');
+                } else {
+                    $uploadPhotos.addClass('disabled');
+                }
+            });
+
+            this.on("removedfile", function () {
+                if (this.files.length > 0) {
+                    $uploadPhotos.removeClass('disabled');
+                } else {
+                    $uploadPhotos.addClass('disabled');
+                }
+            });
+
+            this.on("completemultiple", function (resp) {
+                $uploadPhotos.removeClass('loading');
+                $uploadPhotos.removeClass('disabled');
+
+                $('.ui.modal.upload-modal').modal('hide');
+
+                swal("Files uploaded successfully", {icon: "success"});
+
+                getFiles(true);
+            });
+
+            $uploadPhotos.on('click', function (e) {
+                e.preventDefault();
+                $uploadPhotos.addClass('loading');
+                $uploadPhotos.addClass('disabled');
+                myDropzone.processQueue();
+            });
+        }
+    };
+
     getFiles(false);
-});
+})(jQuery);

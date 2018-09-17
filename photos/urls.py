@@ -18,5 +18,6 @@ urlpatterns = [
 
     # API
     path('api/files/', views.get_folder_list, name='api-file-list'),
-    path('api/remove/file/', views.remove_file, name='api-remove-file')
+    path('api/remove/file/', views.remove_file, name='api-remove-file'),
+    path('api/upload/files/', views.upload_new_files, name='api-upload-new-files')
 ]

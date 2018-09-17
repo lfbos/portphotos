@@ -2,6 +2,7 @@
 {% load staticfiles %}
 
 {% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/dropzone.css' %}">
     <style type="text/css">
         .hidden.menu {
             display: none;
@@ -72,8 +73,7 @@
     <!-- Following Menu -->
     <div class="ui large top fixed hidden menu">
         <div class="ui container">
-            <a class="active item">Home</a>
-            <a class="item">Public Portfolios</a>
+            <a class="item">Welcome {{user}}</a>
             <div class="right menu">
                 <div class="item">
                     <a href="{% url 'logout' %}" class="ui button">Logout</a>
@@ -84,8 +84,7 @@
 
     <!-- Sidebar Menu -->
     <div class="ui vertical inverted sidebar menu">
-        <a class="active item">Home</a>
-        <a class="item">Public Portfolios</a>
+        <a class="item">Welcome {{user}}</a>
         <a class="item" href="{% url 'logout' %}">Logout</a>
     </div>
 
@@ -99,8 +98,7 @@
                 <a class="toc item">
                     <i class="sidebar icon"></i>
                 </a>
-                <a class="active item">Home</a>
-                <a class="item">Public Portfolios</a>
+                <a class="item">Welcome {{user}}</a>
                 <div class="right item">
                     <a class="ui inverted button" href="{% url 'logout' %}">Logout</a>
                 </div>
@@ -108,9 +106,9 @@
         </div>
     </div>
 
-    <div class="ui container" style="margin-top: 1rem;">
+    <div class="ui container" style="margin-bottom: 1rem;">
         <div class="row" style="padding: 1rem;">
-            <button class="large primary ui labeled icon button">
+            <button class="large primary ui labeled icon button upload-photos-btn">
                 <i class="cloud upload icon"></i>
                 Upload Photo
             </button>
@@ -131,19 +129,25 @@
         </div>
     </div>
 
-
-    <div class="ui modal full-size">
+    <div class="ui modal upload-modal">
         <i class="close icon"></i>
         <div class="header">
-            Full Size Image
+            Upload photos
         </div>
         <div class="image content">
-            <div class="ui centered image full-image-modal">
+            <div class="description">
+                <div class="ui header">Click to select photos or drag/drop below.</div>
+                <form action="{% url 'api-upload-new-files' %}" method="post" class="dropzone" id="my-dropzone">
+                    {% csrf_token %}
+                </form>
             </div>
         </div>
         <div class="actions">
-            <div class="ui positive right labeled icon button">
-                Ok
+            <div class="ui black deny button">
+                No
+            </div>
+            <div class="ui positive right labeled icon button upload-photos disabled">
+                Upload photos
                 <i class="checkmark icon"></i>
             </div>
         </div>
@@ -152,6 +156,7 @@
 
 {% block extra_scripts %}
     <script src="{% static 'js/moment.js' %}"></script>
+    <script src="{% static 'js/dropzone.js' %}"></script>
     <script>
         const urls = {
             fileList: '{% url "api-file-list" %}',

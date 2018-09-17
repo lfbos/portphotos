@@ -9,7 +9,6 @@ from django.forms.utils import ErrorList
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
-from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -192,4 +191,19 @@ def remove_file(request):
 
     return Response({
         'message': 'File deleted successfully'
+    })
+
+
+@api_view(['POST'])
+@login_required
+def upload_new_files(request):
+    dbx = dropbox.Dropbox(request.user.access_token)
+
+    new_files = request.FILES.dict().values()
+
+    for file in new_files:
+        dbx.files_upload(file.file.read(), '/{}'.format(file.name), mode=dropbox.dropbox.files.WriteMode.overwrite)
+
+    return Response({
+        'message': 'Photos uploaded successfully'
     })
